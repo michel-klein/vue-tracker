@@ -3,9 +3,13 @@ import IProjeto from '@/interfaces/IProjeto';
 import { InjectionKey } from 'vue';
 import { Store, createStore, useStore as vuexUseStore } from 'vuex';
 import { INotificacao } from '@/interfaces/INotificacao';
+import clienteHttp from '@/http';
 import {
-  ADICIONA_PROJETO, ALTERA_PROJETO, EXCLUIR_PROJETO, NOTIFICAR,
+  ADICIONA_PROJETO, ALTERA_PROJETO, DEFINIR_PROJETOS, EXCLUIR_PROJETO, NOTIFICAR,
 } from './tipo-mutacoes';
+import {
+  ALTERAR_PROJETO, CADASTRAR_PROJETO, OBTER_PROJETOS, REMOVER_PROJETO,
+} from './tipo-acoes';
 
 interface Estado {
   projetos: IProjeto[],
@@ -42,6 +46,27 @@ export const store = createStore<Estado>({
         // eslint-disable-next-line max-len
         state.notificacoes = state.notificacoes.filter((notificacao) => notificacao.id !== novaNotificacao.id);
       }, 3000);
+    },
+    [DEFINIR_PROJETOS](state, projetos: IProjeto[]) {
+      state.projetos = projetos;
+    },
+  },
+  actions: {
+    [OBTER_PROJETOS]({ commit }) {
+      clienteHttp.get('projetos')
+        .then((resposta) => commit(DEFINIR_PROJETOS, resposta.data));
+    },
+    [CADASTRAR_PROJETO](context, nomeProjeto: string) {
+      return clienteHttp.post('projetos', {
+        nome: nomeProjeto,
+      });
+    },
+    [ALTERAR_PROJETO](context, projeto: IProjeto) {
+      return clienteHttp.put(`projetos/${projeto.id}`, projeto);
+    },
+    [REMOVER_PROJETO]({ commit }, id: string) {
+      return clienteHttp.delete(`projetos/${id}`)
+        .then(() => commit(EXCLUIR_PROJETO, id));
     },
   },
 });
