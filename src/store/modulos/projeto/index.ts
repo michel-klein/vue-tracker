@@ -30,6 +30,9 @@ export const projeto: Module<EstadoProjeto, Estado> = {
     [EXCLUIR_PROJETO](state, id: string) {
       state.projetos = state.projetos.filter((proj) => proj.id !== id);
     },
+    [DEFINIR_PROJETOS](state, projetos: IProjeto[]) {
+      state.projetos = projetos;
+    },
   },
   actions: {
     [OBTER_PROJETOS]({ commit }) {
