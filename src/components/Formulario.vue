@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import { useStore } from 'vuex';
 import { key } from '@/store';
 import { TipoNotificacao } from '@/interfaces/INotificacao';
@@ -40,37 +40,44 @@ import Temporizador from './Temporizador.vue';
 
 export default defineComponent({
   name: 'FormularioVue',
-  data() {
-    return {
-      descricao: '',
-      idProjeto: '',
-    };
-  },
-  methods: {
-    finalizarTarefa(tempoDecorrido: number): void {
+  // data() {
+  //   return {
+  //     descricao: '',
+  //     idProjeto: '',
+  //   };
+  // },
+  setup(props, context) {
+    const store = useStore(key);
+
+    const descricao = ref('');
+    const idProjeto = ref('');
+
+    const projetos = computed(() => store.state.projeto.projetos);
+
+    const finalizarTarefa = (tempoDecorrido: number): void => {
       // eslint-disable-next-line max-len
-      const projeto = this.projetos.find((p) => p.id === this.idProjeto);
+      const projeto = projetos.value.find((p) => p.id === idProjeto.value);
       if (!projeto) {
-        this.store.commit(NOTIFICAR, {
+        store.commit(NOTIFICAR, {
           titulo: 'Ops!',
           texto: 'Selecione um projeto antes de finalizar a tarefa!',
           tipo: TipoNotificacao.FALHA,
         });
         return;
       }
-      this.$emit('aoSalvarTarefa', {
+      context.emit('aoSalvarTarefa', {
         duracaoEmSegundos: tempoDecorrido,
-        descricao: this.descricao,
-        projeto: this.projetos.find((proj) => proj.id === this.idProjeto),
+        descricao: descricao.value,
+        projeto: projetos.value.find((proj) => proj.id === idProjeto.value),
       });
-      this.descricao = '';
-    },
-  },
-  setup() {
-    const store = useStore(key);
+      descricao.value = '';
+    };
+
     return {
-      store,
-      projetos: computed(() => store.state.projeto.projetos),
+      descricao,
+      idProjeto,
+      projetos,
+      finalizarTarefa,
     };
   },
   components: { Temporizador },
