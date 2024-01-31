@@ -1,19 +1,22 @@
+/* eslint-disable max-len */
 /* eslint-disable no-param-reassign */
 import IProjeto from '@/interfaces/IProjeto';
 import { InjectionKey } from 'vue';
 import { Store, createStore, useStore as vuexUseStore } from 'vuex';
 import { INotificacao } from '@/interfaces/INotificacao';
 import clienteHttp from '@/http';
+import ITarefa from '@/interfaces/ITarefa';
 import {
-  ADICIONA_PROJETO, ALTERA_PROJETO, DEFINIR_PROJETOS, EXCLUIR_PROJETO, NOTIFICAR,
+  ADICIONA_PROJETO, ADICIONA_TAREFA, ALTERA_PROJETO, DEFINIR_PROJETOS, DEFINIR_TAREFAS, EXCLUIR_PROJETO, NOTIFICAR,
 } from './tipo-mutacoes';
 import {
-  ALTERAR_PROJETO, CADASTRAR_PROJETO, OBTER_PROJETOS, REMOVER_PROJETO,
+  ALTERAR_PROJETO, CADASTRAR_PROJETO, OBTER_PROJETOS, REMOVER_PROJETO, OBTER_TAREFAS, CADASTRAR_TAREFA,
 } from './tipo-acoes';
 
 interface Estado {
   projetos: IProjeto[],
-  notificacoes: INotificacao[]
+  notificacoes: INotificacao[],
+  tarefas: ITarefa[],
 }
 
 // eslint-disable-next-line symbol-description
@@ -23,6 +26,7 @@ export const store = createStore<Estado>({
   state: {
     projetos: [],
     notificacoes: [],
+    tarefas: [],
   },
   mutations: {
     [ADICIONA_PROJETO](state, nomeDoProjeto: string) {
@@ -50,11 +54,17 @@ export const store = createStore<Estado>({
     [DEFINIR_PROJETOS](state, projetos: IProjeto[]) {
       state.projetos = projetos;
     },
+    [DEFINIR_TAREFAS](state, tarefas: ITarefa[]) {
+      state.tarefas = tarefas;
+    },
+    [ADICIONA_TAREFA](state, tarefa: ITarefa) {
+      state.tarefas.push(tarefa);
+    },
   },
   actions: {
     [OBTER_PROJETOS]({ commit }) {
       clienteHttp.get('projetos')
-        .then((resposta) => commit(DEFINIR_PROJETOS, resposta.data));
+        .then((response) => commit(DEFINIR_PROJETOS, response.data));
     },
     [CADASTRAR_PROJETO](context, nomeProjeto: string) {
       return clienteHttp.post('projetos', {
@@ -67,6 +77,14 @@ export const store = createStore<Estado>({
     [REMOVER_PROJETO]({ commit }, id: string) {
       return clienteHttp.delete(`projetos/${id}`)
         .then(() => commit(EXCLUIR_PROJETO, id));
+    },
+    [OBTER_TAREFAS]({ commit }) {
+      clienteHttp.get('tarefas')
+        .then((response) => commit(DEFINIR_TAREFAS, response.data));
+    },
+    [CADASTRAR_TAREFA]({ commit }, tarefa: ITarefa) {
+      return clienteHttp.post('tarefas', tarefa)
+        .then((response) => commit(ADICIONA_TAREFA, response.data));
     },
   },
 });

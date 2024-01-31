@@ -4,5 +4,25 @@
       "id": 1,
       "nome": "Typescript"
     }
+  ],
+  "tarefas": [
+    {
+      "id": 1,
+      "duracaoEmSegundos": 120,
+      "descricao": "Configuração do ambiente",
+      "projeto": {
+        "id": 1,
+        "nome": "Typescript"
+      }
+    },
+    {
+      "id": "116e",
+      "duracaoEmSegundos": 2,
+      "descricao": "teste",
+      "projeto": {
+        "id": 1,
+        "nome": "Typescript"
+      }
+    }
   ]
 }
